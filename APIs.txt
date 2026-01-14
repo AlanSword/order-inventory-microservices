@@ -1,0 +1,15 @@
+order:(admin/users)
+GET - http://localhost:8080/api/orders
+GET - http://localhost:8080/api/orders/{id}
+POST - http://localhost:8080/api/orders
+DELETE - http://localhost:8080/api/orders/{id}
+
+inventory:(admin/users)
+GET - http://localhost:8080/api/inventory
+GET - http://localhost:8080/api/inventory/{id}
+GET - http://localhost:8080/api/inventory/product/{product}
+
+inventory:(admin)
+POST - http://localhost:8080/api/inventory/admin
+POST - http://localhost:8080/api/inventory/admin/addQuantity
+DELETE - http://localhost:8080/api/inventory/admin/{id}

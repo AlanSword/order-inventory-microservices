@@ -1,8 +1,13 @@
 package com.sword.inventoryservice.controller;
 
+import com.sword.inventoryservice.dto.DeductRequest;
+import com.sword.inventoryservice.dto.DeductResponse;
+import com.sword.inventoryservice.dto.UpdateQuantityRequest;
 import com.sword.inventoryservice.model.InventoryItem;
 import com.sword.inventoryservice.service.InventoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,13 +36,26 @@ public class InventoryController {
         return inventoryService.getItemByProduct(product);
     }
 
-    @PostMapping
+    @PostMapping("/admin")
     public InventoryItem createItem(@RequestBody InventoryItem item) {
         return inventoryService.createItem(item);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/admin/{id}")
     public void deleteItem(@PathVariable String id) {
         inventoryService.deleteItem(id);
     }
+
+    @PostMapping("/deduct")
+    public DeductResponse deduct(@RequestBody DeductRequest request) {
+        return inventoryService.deduct(request);
+    }
+    @PostMapping("/admin/addQuantity")
+    public InventoryItem updateQuantity(
+            @Valid @RequestBody UpdateQuantityRequest body
+    ) {
+       return inventoryService.updateQuantityById(body.id(), body.quantity());
+
+    }
+
 }

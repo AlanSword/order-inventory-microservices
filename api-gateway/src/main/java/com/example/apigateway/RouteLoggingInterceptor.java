@@ -26,6 +26,7 @@ public class RouteLoggingInterceptor implements HandlerInterceptor {
         Map<String, Object> attrs =
                 (Map<String, Object>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 
+        // For simple Path=/api/orders/** style routes this may contain variables; log basic info
         log.info("Gateway routing request: {} {} | attributes={}", method, path, attrs);
         return true;
     }
