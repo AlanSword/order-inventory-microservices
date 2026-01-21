@@ -3,6 +3,7 @@ package com.example.apigateway.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,12 +30,23 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/api/inventory/**", "/api/orders/**", "/admin/**")
+                .securityMatcher("/api/inventory/**", "/api/orders/**"
+                        , "/api/users/**"
+                        )
                 .authorizeHttpRequests(authz -> authz
+
+                        //Public
+                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+                        // Admin-only (specific first)
                         .requestMatchers("/api/inventory/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/inventory/**").hasAnyRole("USER","ADMIN")
-                        .requestMatchers("/api/orders/**").hasAnyRole("USER","ADMIN")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers( "/api/users/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/orders/admin/**").hasRole("ADMIN")
+                        // User/admin shared
+                        .requestMatchers("/api/inventory/**").hasAnyRole("USER", "ADMIN")
+                        // User-only area
+                        .requestMatchers("/api/orders/**").hasRole("USER")
+                        .requestMatchers("/api/users/**").hasRole("USER")
+                        // Catch-all
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())

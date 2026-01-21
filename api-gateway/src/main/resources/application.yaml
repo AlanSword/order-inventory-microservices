@@ -26,6 +26,10 @@ spring:
               uri: lb://INVENTORY-SERVICE
               predicates:
                 - Path=/api/inventory/**
+            - id: user-management
+              uri: lb://USER-MANAGEMENT
+              predicates:
+                - Path=/api/users/**
 
 eureka:
   client:
@@ -37,3 +41,7 @@ logging:
     com.example.apigateway.RouteLoggingInterceptor: DEBUG
     org.springframework.cloud.gateway.server.mvc: DEBUG
     org.springframework.web.servlet.DispatcherServlet: DEBUG
+
+    org:
+      springframework:
+        security: DEBUG

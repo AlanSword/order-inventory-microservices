@@ -1,15 +1,56 @@
-order:(admin/users)
-GET - http://localhost:8080/api/orders
-GET - http://localhost:8080/api/orders/{id}
-POST - http://localhost:8080/api/orders
-DELETE - http://localhost:8080/api/orders/{id}
+order:(users)
+⦁	GET - http://localhost:8080/api/orders/orderList
+⦁	GET - http://localhost:8080/api/orders/{id}
+⦁	POST - http://localhost:8080/api/orders/place
+	{
+        "product": "Laptop",
+        "productId": "sdsd325",
+        "quantity": 2,
+        "price": 59999.0
+   	}
+⦁	DELETE - http://localhost:8080/api/orders/{id}
+
+order:(admin)
+⦁	GET - http://localhost:8080/api/orders/admin/allorders
+⦁	GET - http://localhost:8080/api/orders/admin/order/{id}
+⦁	GET - http://localhost:8080/api/orders/admin/{user}
+⦁	DELETE - http://localhost:8080/api/orders/{id}
 
 inventory:(admin/users)
-GET - http://localhost:8080/api/inventory
-GET - http://localhost:8080/api/inventory/{id}
-GET - http://localhost:8080/api/inventory/product/{product}
+⦁	GET - http://localhost:8080/api/inventory
+⦁	GET - http://localhost:8080/api/inventory/{id}
+⦁	GET - http://localhost:8080/api/inventory/product/{product}
 
 inventory:(admin)
-POST - http://localhost:8080/api/inventory/admin
-POST - http://localhost:8080/api/inventory/admin/addQuantity
-DELETE - http://localhost:8080/api/inventory/admin/{id}
+⦁	POST - http://localhost:8080/api/inventory/admin
+	{
+        "id": "ysdr209",
+        "product": "chargers",
+        "quantity": 200
+    	}
+⦁	POST - http://localhost:8080/api/inventory/admin/addQuantity
+	{
+        "id": "sjhg935",
+        "quantity": 30
+    	}
+⦁	DELETE - http://localhost:8080/api/inventory/admin/{id}
+
+user-management:(global)
+⦁	POST - http://localhost:8080/api/users 
+	{ "username": "user9",
+        "password": "user9",
+        "enabled": true,
+        "roleNames": ["USER"]
+    	}
+
+user-management:(users)
+⦁	GET - http://localhost:8080/api/users/me
+⦁	PUT - http://localhost:8080/api/users/resetpassword
+	{ "newPassword": "user8" }
+⦁	DELETE - http://localhost:8080/api/users/delete
+
+user-management:(admin)
+⦁	GET - http://localhost:8080/api/users/admin/userList
+⦁	PUT - http://localhost:8080/api/users/admin/{id}/resetpassword
+	{ "newPassword": "user8" }
+	DELETE - http://localhost:8080/api/users/admin/{id}

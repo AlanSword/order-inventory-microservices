@@ -11,5 +11,5 @@ public class Role {
     @Column(name = "id")
     private Integer id;
 
-    private String name; // USER / ADMIN
+    private String name;
 }
