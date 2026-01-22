@@ -1,0 +1,127 @@
+services:
+  postgres-orderservice:
+    image: postgres:18.1
+    container_name: postgres-orderservice
+    environment:
+      POSTGRES_DB: orderservice
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_order_data:/var/lib/postgresql
+      - ./db/postgres-orderservice/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d orderservice"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  postgres-userroles:
+    image: postgres:18.1
+    container_name: postgres-userroles
+    environment:
+      POSTGRES_DB: userRoles
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_user_data:/var/lib/postgresql
+      - ./db/postgres-userroles/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d userRoles"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  mongo-inventoryservice:
+    image: mongo:8.2.2
+    container_name: mongo-inventoryservice
+    environment:
+      MONGO_INITDB_DATABASE: inventoryservice
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_inventory_data:/data/db
+      - ./db/mongo-inventoryservice/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --host localhost --port 27017 --eval 'db.adminCommand({ ping: 1 }).ok' | grep 1 >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 120s
+
+  eureka-server:
+    image: alanmanuel/order-inventory-user-microservices:eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      SERVER_PORT: 8761
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8761/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 25
+
+  api-gateway:
+    image: alanmanuel/order-inventory-user-microservices:api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-userroles:5432/userRoles
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 12345678
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres-userroles:
+        condition: service_healthy
+
+  order-service:
+    image: alanmanuel/order-inventory-user-microservices:order-service
+    container_name: order-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-orderservice:5432/orderservice
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 12345678
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres-orderservice:
+        condition: service_healthy
+
+  user-management:
+    image: alanmanuel/order-inventory-user-microservices:user-management
+    container_name: user-management
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-userroles:5432/userRoles
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 12345678
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres-userroles:
+        condition: service_healthy
+
+  inventory-service:
+    image: alanmanuel/order-inventory-user-microservices:inventory-service
+    container_name: inventory-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-inventoryservice:27017/inventoryservice
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      mongo-inventoryservice:
+        condition: service_healthy
+
+volumes:
+  postgres_order_data:
+  postgres_user_data:
+  mongo_inventory_data:
