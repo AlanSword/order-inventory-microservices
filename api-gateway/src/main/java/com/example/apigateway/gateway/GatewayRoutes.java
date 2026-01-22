@@ -17,19 +17,19 @@ public class GatewayRoutes {
 
         RouterFunction<ServerResponse> users =
                 route("user-service")
-                        .route(req -> req.path().startsWith("/api/users"), http("http://localhost:8083"))
+                        .route(req -> req.path().startsWith("/api/users"), http("http://user-management:8083"))
                         .before(authHeaderFilter.addUsernameHeader())
                         .build();
 
         RouterFunction<ServerResponse> inventory =
                 route("inventory-service")
-                        .route(req -> req.path().startsWith("/api/inventory"), http("http://localhost:8082"))
+                        .route(req -> req.path().startsWith("/api/inventory"), http("http://inventory-service:8082"))
                         .before(authHeaderFilter.addUsernameHeader())
                         .build();
 
         RouterFunction<ServerResponse> orders =
                 route("order-service")
-                        .route(req -> req.path().startsWith("/api/orders"), http("http://localhost:8081"))
+                        .route(req -> req.path().startsWith("/api/orders"), http("http://order-service:8081"))
                         .before(authHeaderFilter.addUsernameHeader())
                         .build();
 
